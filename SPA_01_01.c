@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <string.h>
 
 
 int mystrlen(const char* str1) {
@@ -8,7 +8,7 @@ int mystrlen(const char* str1) {
 
 	for (k; str1[k] != '\0'; k++)
 		;
-	
+
 
 	return k;
 
@@ -46,7 +46,7 @@ char* mystrcmp(char* str1, char* str2) {
 			return -1;
 		else if (str1[k] > str2[k])
 			return 1;
-		
+
 
 		if ((k + 1) == max_len)
 			return 0;
@@ -78,26 +78,26 @@ char* mystrcat(char* str1, char* str2) {
 
 
 char* mystrstr(char* str1, char* str2)
-{	
+{
 	int k = 0;
 	int len1 = mystrlen(str1);
 	int len2 = mystrlen(str2);
 	int i = 0;
 
 
-for ( k ; k <= len1 - len2; k++) {
+	for (k; k <= len1 - len2; k++) {
 
-	for (i = 0; i < len2; i++) {
-		if (str1[k + i] != str2[i]) {
-			break;
+		for (i = 0; i < len2; i++) {
+			if (str1[k + i] != str2[i]) {
+				break;
+			}
+		}
+		if (i == len2) {
+			return &str1[k];
 		}
 	}
-	if (i == len2) {
-		return &str1[k];
-	}
-}
 
-return 0;
+	return 0;
 
 }
 
@@ -105,10 +105,10 @@ char* reverse(char* dest, char* str2) {
 
 	int k = 0;
 	int i = mystrlen(str2) - 1;
-	int len = i+1;
-	
+	int len = i + 1;
 
-	for (i , k ; i > 0 && k < len ; i--, k++) {
+
+	for (i, k; i > 0 && k < len; i--, k++) {
 		dest[k] = str2[i];
 	}
 
@@ -118,28 +118,29 @@ char* reverse(char* dest, char* str2) {
 
 }
 
-int main(void)
+void main()
 {
-	char str1[100] = "ab";
-	char* str2 = "abc";
-	char dest[100];
+	char str1[100] = "Hello";
+	char* str2 = "World";
+	char dest[50];
 
 
 
-	//printf("%d\n", mystrlen(str1));
+	printf("%d\n", mystrlen(str1));
 
-	//printf("%s", mystrcpy(dest, str2));
+	printf("%s\n", mystrcpy(dest, str2));
 
-	printf("%d", mystrcmp(str1, str2));
+	printf("%d\n", mystrcmp(str1, str2));
 
-	//printf("%s", mystrcat(str1, str2));
+	printf("%s\n", mystrcat(str1, str2));
 
-	//printf("%s\n", mystrstr(str1, str2));
-	
-	//printf("%s", reverse(dest, str2));
+	printf("%s\n", mystrstr(str1, str2));
+
+	printf("%s\n", reverse(dest, str2));
 
 	return 0;
 }
+
 
 
 
