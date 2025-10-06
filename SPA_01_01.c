@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 int mystrlen(const char* str1) {
 	int k = 0;
 	for (k; str1[k] != '\0'; k++)
@@ -126,6 +125,7 @@ void main()
 
 	return 0;
 }
+
 
 
 
