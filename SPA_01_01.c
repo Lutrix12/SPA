@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-int mystrlen(const char* str1) {
-	int k = 0;
-	for (k; str1[k] != '\0'; k++)
-		;
-	return k;
+int mystrlen(const char* str) {
+	int len = 0;
+	while (str[len] != '\0') len++;
+	return len;
 }
 
 char* mystrcpy(char* dest, const char* str2) {
@@ -119,6 +118,7 @@ void main()
 
 	return 0;
 }
+
 
 
 
