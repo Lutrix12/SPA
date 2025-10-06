@@ -3,15 +3,10 @@
 
 
 int mystrlen(const char* str1) {
-
 	int k = 0;
-
 	for (k; str1[k] != '\0'; k++)
 		;
-
-
 	return k;
-
 }
 
 char* mystrcpy(char* dest, const char* str2) {
@@ -47,12 +42,9 @@ char* mystrcmp(char* str1, char* str2) {
 		else if (str1[k] > str2[k])
 			return 1;
 
-
 		if ((k + 1) == max_len)
 			return 0;
-
 	}
-
 }
 
 char* mystrcat(char* str1, char* str2) {
@@ -77,13 +69,11 @@ char* mystrcat(char* str1, char* str2) {
 
 
 
-char* mystrstr(char* str1, char* str2)
-{
+char* mystrstr(char* str1, char* str2){
 	int k = 0;
 	int len1 = mystrlen(str1);
 	int len2 = mystrlen(str2);
 	int i = 0;
-
 
 	for (k; k <= len1 - len2; k++) {
 
@@ -96,9 +86,7 @@ char* mystrstr(char* str1, char* str2)
 			return &str1[k];
 		}
 	}
-
 	return 0;
-
 }
 
 char* reverse(char* dest, char* str2) {
@@ -124,8 +112,6 @@ void main()
 	char* str2 = "World";
 	char dest[50];
 
-
-
 	printf("%d\n", mystrlen(str1));
 
 	printf("%s\n", mystrcpy(dest, str2));
@@ -140,6 +126,7 @@ void main()
 
 	return 0;
 }
+
 
 
 
