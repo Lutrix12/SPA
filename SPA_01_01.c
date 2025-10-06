@@ -65,15 +65,12 @@ char* mystrcat(char* str1, char* str2) {
 	return str1;
 }
 
-
-
-
 char* mystrstr(char* str1, char* str2){
 	int k = 0;
 	int len1 = mystrlen(str1);
 	int len2 = mystrlen(str2);
 	int i = 0;
-
+	
 	for (k; k <= len1 - len2; k++) {
 
 		for (i = 0; i < len2; i++) {
@@ -93,16 +90,13 @@ char* reverse(char* dest, char* str2) {
 	int k = 0;
 	int i = mystrlen(str2) - 1;
 	int len = i + 1;
-
-
+	
 	for (i, k; i > 0 && k < len; i--, k++) {
 		dest[k] = str2[i];
 	}
-
+	
 	dest[k] = '\0';
-
 	return dest;
-
 }
 
 void main()
@@ -125,6 +119,7 @@ void main()
 
 	return 0;
 }
+
 
 
 
