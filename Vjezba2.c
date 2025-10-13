@@ -87,11 +87,11 @@ int main() {
     printf("Drugi dio: ");
     ispisi_niz(dijelovi[1], n - n / 2);
 
-    // Oslobodi memoriju
     free(dijelovi[0]);
     free(dijelovi[1]);
     free(dijelovi);
 
     return 0;
 }
+
 
