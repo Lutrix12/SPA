@@ -1,1 +1,193 @@
-https://github.com/Stipe122
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+#define BIGRAND (rand()*rand())
+
+int* copyArray(int* src, int n) {
+    int* dst = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        dst[i] = src[i];
+    }
+    return dst;
+}
+
+
+int cmp_int(const void* a, const void* b) {
+    int A = *(const int*)a;
+    int B = *(const int*)b;
+    return (A > B) - (A < B);
+}
+
+
+void shuffle(int* arr, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + (BIGRAND % (n - i));
+        int t = arr[i];
+        arr[i] = arr[j];
+        arr[j] = t;
+    }
+}
+
+int* generate(int n) {
+    int* arr = malloc(n * sizeof(int));
+
+    arr[0] = 1 + (BIGRAND % 3);
+    for (int i = 1; i < n; i++)
+        arr[i] = arr[i - 1] + ((BIGRAND % 3) + 1);
+
+    shuffle(arr, n);
+    return arr;
+}
+
+/* O(n²) */
+int presjek(int* A, int* B, int n) {
+    int count = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (A[i] == B[j]) count++;
+    return count;
+}
+
+/*O(n log n) */
+int presjek_jedan_sortiran(int* A, int* B, int n) {
+    qsort(B, n, sizeof(int), cmp_int);
+
+    int count = 0;
+    for (int i = 0; i < n; i++)
+        if (
+            bsearch(&A[i], B, n, sizeof(int), cmp_int))
+            count++;
+
+    return count;
+}
+
+/*O(n log n) */
+int presjek_oba_sortirana(int* A, int* B, int n) {
+    qsort(A, n, sizeof(int), cmp_int);
+    qsort(B, n, sizeof(int), cmp_int);
+
+    int i = 0, j = 0, count = 0;
+    while (i < n && j < n) {
+        if (A[i] == B[j]){ 
+            count++;
+            i++; 
+            j++; 
+        }
+        else if (A[i] < B[j]) {
+            i++;
+        }
+        else {
+            j++;
+        }
+    }
+    return count;
+}
+
+/* O(n + max(A) + max(B)) */
+int presjek_po_indeksima(int* A, int* B, int n) {
+    int maxA = A[0], maxB = B[0];
+    for (int i = 1; i < n; i++) {
+        if (A[i] > maxA) maxA = A[i];
+        if (B[i] > maxB) maxB = B[i];
+    }
+
+    int maxV;
+
+    if (maxA > maxB) {
+        maxV = maxA;
+    }
+    else {
+        maxV = maxB;
+    }
+
+    unsigned char* bitA = calloc(maxV + 1, 1);
+    unsigned char* bitB = calloc(maxV + 1, 1);
+
+    for (int i = 0; i < n; i++) bitA[A[i]] = 1;
+    for (int i = 0; i < n; i++) bitB[B[i]] = 1;
+
+    int limit;
+
+    if (maxA < maxB) {
+        limit = maxA;
+    }
+    else {
+        limit = maxB;
+    }
+
+    int count = 0;
+    for (int i = 0; i <= limit; i++)
+        if (bitA[i] & bitB[i]) count++;
+
+    free(bitA);
+    free(bitB);
+    return count;
+}
+
+
+void main() {
+    printf("N, O(n^2), O(n log n bsearch), O(n log n sorted), O(index)\n");
+
+    srand(time(NULL));
+
+    for (int N = 100000; N <= 3000000; N += 300000) {
+
+        int* A = generate(N);
+        int* B = generate(N);
+
+        printf("%d", N);
+
+        /* O(n^2) (skip for large N)*/
+        if (N <= 300000) {
+            int* Ac = copyArray(A, N);
+            int* Bc = copyArray(B, N);
+            clock_t t = clock();
+            int r = presjek(Ac, Bc, N);
+            t = clock() - t;
+            printf(", %f", (double)t / CLOCKS_PER_SEC);
+            free(Ac); free(Bc);
+        }
+        else {
+            printf(", -");
+        }
+
+        /* O(n log n) bsearch */
+        {
+            int* Bc = copyArray(B, N);
+            clock_t t = clock();
+            int r = presjek_jedan_sortiran(A, Bc, N);
+            t = clock() - t;
+            printf(", %f", (double)t / CLOCKS_PER_SEC);
+            free(Bc);
+        }
+
+        /*  O(n log n) sorted merge  */
+        {
+            int* Ac = copyArray(A, N);
+            int* Bc = copyArray(B, N);
+            clock_t t = clock();
+            int r = presjek_oba_sortirana(Ac, Bc, N);
+            t = clock() - t;
+            printf(", %f", (double)t / CLOCKS_PER_SEC);
+            free(Ac);
+            free(Bc);
+        }
+
+        /*  O(index) method */
+        {
+            clock_t t = clock();
+            int r = presjek_po_indeksima(A, B, N);
+            t = clock() - t;
+            printf(", %f", (double)t / CLOCKS_PER_SEC);
+        }
+
+        printf("\n");
+
+        free(A);
+        free(B);
+    }
+
+  
+}
