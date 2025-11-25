@@ -1,100 +1,128 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+typedef struct _Element {
+    int prioritet;
+    void* data;
+} Element;
 
 typedef struct {
-    float x, y, z;
-} Vrh;
+    int n;          // current number of elements
+    int capacity;   // maximum capacity
+    Element* queue_arr;
+} Queue;
 
-typedef struct {
-    float normal[3];       
-    Vrh vrh[3];            
-    unsigned short boja;   
-} Trokut;
+Queue create_queue(int capacity)
+{
+    Queue q;
+    q.n = 0;
+    q.capacity = capacity;
+    q.queue_arr = (Element*)malloc(capacity * sizeof(Element));
 
-typedef struct {
-    Trokut* trokuti;
-    int broj_trokuta;
-} Objekt3D;
-
-Objekt3D* ucitajBinSTL(char* naziv) {
-    FILE* f = fopen(naziv, "rb");
-    if (!f) return NULL;
-
-    fseek(f, 80, SEEK_SET);
-
-    int broj;
-    fread(&broj, sizeof(int), 1, f);
-
-    Objekt3D* obj = malloc(sizeof(Objekt3D));
-    obj->broj_trokuta = broj;
-    obj->trokuti = malloc(broj * sizeof(Trokut));
-
-    for (int i = 0; i < broj; i++) {
-        fread(obj->trokuti[i].normal, sizeof(float), 3, f);
-        fread(&obj->trokuti[i].vrh, sizeof(Vrh), 3, f);
-        fread(&obj->trokuti[i].boja, sizeof(short), 1, f);
+    if (q.queue_arr == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
     }
 
-    fclose(f);
-    return obj;
+    return q;
 }
 
-void zapisiBinSTL(char* naziv, Objekt3D* obj) {
-    FILE* f = fopen(naziv, "wb");
-    if (!f) return;
+void delete_queue(Queue* q)
+{
+    q->n = 0;
+    q->capacity = 0;
+    free(q->queue_arr);
+    q->queue_arr = NULL;
+}
 
-    char header[80] = { 0 };
-    fwrite(header, 1, 80, f);
-    fwrite(&obj->broj_trokuta, sizeof(int), 1, f);
+void sort_queue_top_iter(Queue* q, int c)
+{
+    while (c > 0) {
+        int r = (c - 1) / 2;
 
-    for (int i = 0; i < obj->broj_trokuta; i++) {
-        fwrite(obj->trokuti[i].normal, sizeof(float), 3, f);
-        fwrite(&obj->trokuti[i].vrh, sizeof(Vrh), 3, f);
-        fwrite(&obj->trokuti[i].boja, sizeof(short), 1, f);
+        if (q->queue_arr[c].prioritet > q->queue_arr[r].prioritet) {
+            Element temp = q->queue_arr[c];
+            q->queue_arr[c] = q->queue_arr[r];
+            q->queue_arr[r] = temp;
+            c = r;
+        } else {
+            break;
+        }
+    }
+}
+
+void queue_add(Queue* q, Element el)
+{
+    if (q->n >= q->capacity) {
+        printf("Queue overflow! Cannot add more elements.\n");
+        return;
     }
 
-    fclose(f);
+    q->queue_arr[q->n] = el;
+    q->n++;
+
+    sort_queue_top_iter(q, q->n - 1);
 }
 
-void zapisiTxtSTL(char* naziv, Objekt3D* obj,char* ime) {
-    FILE* f = fopen(naziv, "w");
-    if (!f) return;
+void sort_queue_bottom_iter(Queue* q, int r)
+{
+    while (1) {
+        int c_l = 2 * r + 1;
+        int c_r = 2 * r + 2;
+        int largest = r;
 
-    fprintf(f, "solid %s\n", ime);
+        if (c_l < q->n && q->queue_arr[c_l].prioritet > q->queue_arr[largest].prioritet)
+            largest = c_l;
 
-    for (int i = 0; i < obj->broj_trokuta; i++) {
-        Trokut t = obj->trokuti[i];
-        fprintf(f, "  facet normal %f %f %f\n", t.normal[0], t.normal[1], t.normal[2]);
-        fprintf(f, "    outer loop\n");
-        for (int j = 0; j < 3; j++)
-            fprintf(f, "      vertex %f %f %f\n", t.vrh[j].x, t.vrh[j].y, t.vrh[j].z);
-        fprintf(f, "    endloop\n");
-        fprintf(f, "  endfacet\n");
+        if (c_r < q->n && q->queue_arr[c_r].prioritet > q->queue_arr[largest].prioritet)
+            largest = c_r;
+
+        if (largest != r) {
+            Element temp = q->queue_arr[r];
+            q->queue_arr[r] = q->queue_arr[largest];
+            q->queue_arr[largest] = temp;
+            r = largest;
+        } else {
+            break;
+        }
+    }
+}
+
+void remove_from_top(Queue* q)
+{
+    if (q->n == 0) {
+        printf("Queue underflow! Nothing to remove.\n");
+        return;
     }
 
-    fclose(f);
+    q->queue_arr[0] = q->queue_arr[q->n - 1];
+    q->n--;
+
+    sort_queue_bottom_iter(q, 0);
 }
 
-void obrisiObjekt3D(Objekt3D* obj) {
-    if (!obj) return;
-    free(obj->trokuti);
-    free(obj);
-}
+int main()
+{
+    Queue q = create_queue(10);
 
-int main() {
-    Objekt3D* obj = ucitajBinSTL("primjerbin.stl");
-    if (!obj) {
-        printf("Neuspjelo čitanje STL datoteke!\n");
-        return 1;
+    for (int i = 0; i < 10; i++)
+    {
+        Element temp;
+        temp.prioritet = i;
+        temp.data = NULL;     // FIXED
+        queue_add(&q, temp);
     }
 
-    printf("Ucitano %d\n", obj->broj_trokuta);
+    printf("Heap after insertion:\n");
+    for (int i = 0; i < q.n; i++)
+        printf("%d\n", q.queue_arr[i].prioritet);
 
-    zapisiBinSTL("kopija_bin.stl", obj);
-    zapisiTxtSTL("kopija_txt.stl", obj, "kopija");
+    printf("\nAfter removing top element:\n");
+    remove_from_top(&q);
 
-    obrisiObjekt3D(obj);
-    
+    for (int i = 0; i < q.n; i++)
+        printf("%d\n", q.queue_arr[i].prioritet);
+
+    delete_queue(&q);
     return 0;
 }
